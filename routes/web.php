@@ -8,6 +8,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/lupa-password', [NoteController::class, 'showForgotForm'])->name('password.custom_forgot');
+Route::post('/lupa-password', [NoteController::class, 'processForgot'])->name('password.custom_process');
+
+Route::get('/reset-password-baru', [NoteController::class, 'showResetForm'])->name('password.custom_reset');
+Route::post('/reset-password-baru', [NoteController::class, 'processReset'])->name('password.custom_update');
 Route::middleware(['auth'])->group(function () {
 
     // 1. Redirect Cerdas saat Login

@@ -4,16 +4,48 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ChewytPad - Welcome</title>
+    <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
+
+    <!-- Custom Animation -->
+    <style>
+        @keyframes float {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes float-reverse {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(-30px, 50px) scale(0.9); }
+            66% { transform: translate(20px, -20px) scale(1.1); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: float 10s infinite ease-in-out;
+        }
+        .animate-blob-reverse {
+            animation: float-reverse 12s infinite ease-in-out;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+    </style>
 </head>
 <body class="bg-pop-candy font-sans antialiased flex flex-col min-h-screen relative overflow-hidden">
 
-    <!-- Dekorasi Latar Belakang -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-pop-lime rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-pop-gum rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse" style="animation-delay: 2s"></div>
+    <!-- Dekorasi Latar Belakang (Sekarang Gerak-Gerak!) -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <!-- Lingkaran Kuning (Lime) -->
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-pop-lime rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        
+        <!-- Lingkaran Pink (Gum) -->
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-pop-gum rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob-reverse animation-delay-2000"></div>
+        
+        <!-- Tambahan Lingkaran Kecil di Tengah (Opsional, biar makin rame dikit) -->
+        <div class="absolute top-[40%] left-[20%] w-64 h-64 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
     </div>
 
     <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
