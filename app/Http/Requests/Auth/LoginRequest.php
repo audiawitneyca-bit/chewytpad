@@ -45,10 +45,32 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // 1. CEK APAKAH USER ADA DI TONG SAMPAH (KENA KICK)?
+        // Kita cari user berdasarkan email, TERMASUK yang sudah dihapus (withTrashed)
+        $kickedUser = \App\Models\User::withTrashed()
+                        ->where('email', $this->input('email'))
+                        ->whereNotNull('deleted_at') // Pastikan dia memang statusnya deleted
+                        ->first();
+
+        if ($kickedUser) {
+            // Jika password cocok (validasi manual agar tidak bocor info akun)
+            if (\Illuminate\Support\Facades\Hash::check($this->input('password'), $kickedUser->password)) {
+                
+                // Ambil alasan atau pesan default
+                $reason = $kickedUser->ban_reason ?? 'Melanggar kebijakan aplikasi.';
+
+                // Lempar Error agar muncul di halaman login
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'email' => "Akun Anda telah dinonaktifkan oleh Admin. Alasan: \"$reason\"",
+                ]);
+            }
+        }
+
+        // 2. PROSES LOGIN NORMAL (Jika user tidak di-kick)
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
+            throw \Illuminate\Validation\ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }

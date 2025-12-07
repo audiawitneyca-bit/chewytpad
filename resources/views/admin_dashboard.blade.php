@@ -1,7 +1,6 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gray-50 pb-20 font-sans">
+    <div class="min-h-screen bg-gray-50 pb-20 font-sans" x-data="{ showKickModal: false, kickUrl: '', kickUserName: '' }">
         
-        <!-- HEADER ADMIN -->
         <div class="bg-pop-hibiscus pb-20 pt-10 px-4 rounded-b-[3rem] shadow-soft relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
             
@@ -18,7 +17,6 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
             
-            <!-- 1. STATISTIK CARD -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-[2rem] shadow-lg border-b-8 border-pop-hibiscus flex items-center gap-4 transform hover:-translate-y-1 transition">
                     <div class="w-16 h-16 bg-pink-100 rounded-2xl flex items-center justify-center text-3xl">👥</div>
@@ -47,7 +45,6 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                <!-- KIRI: MONITORING LIVE FEED (REVISI PRIVASI) -->
                 <div class="bg-white rounded-[2rem] shadow-soft overflow-hidden border border-gray-100 h-fit">
                     <div class="bg-pop-candy/30 p-6 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="text-xl font-black text-pop-hibiscus">📡 Mata-Mata Aktivitas</h3>
@@ -57,22 +54,17 @@
                     <div class="p-6 space-y-6 max-h-[600px] overflow-y-auto">
                         @forelse($latestActivities as $activity)
                         <div class="flex gap-4 items-start">
-                            <!-- Avatar User -->
                             <div class="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center font-black text-gray-400 text-sm border-2 border-white shadow-sm">
                                 {{ substr($activity->user->name, 0, 1) }}
                             </div>
                             
-                            <!-- Konten Aktivitas -->
                             <div class="bg-gray-50 p-4 rounded-2xl rounded-tl-none w-full text-sm hover:bg-pop-lime/20 transition">
                                 <div class="flex justify-between items-center mb-2">
-                                    <!-- Nama User -->
                                     <span class="font-black text-pop-dark">{{ $activity->user->name }}</span>
-                                    <!-- Waktu -->
                                     <span class="text-xs text-gray-400">{{ $activity->created_at->diffForHumans() }}</span>
                                 </div>
                                 
-                                <!-- PESAN PRIVASI (HANYA INI SAJA YANG MUNCUL) -->
-                                <p class="text-gray-600 font-medium italic">"Menambahkan catatan baru saja"</p>
+                                <p class="text-gray-600 font-medium italic">"Menambahkan catatan baru"</p>
                             </div>
                         </div>
                         @empty
@@ -81,10 +73,8 @@
                     </div>
                 </div>
 
-                <!-- KANAN: DAFTAR WARGA & FAVORIT -->
                 <div class="space-y-8">
                     
-                    <!-- A. KOTAK USER FAVORIT (HALL OF FAME) -->
                     @if($favoriteUsers->count() > 0)
                     <div class="bg-yellow-50 rounded-[2rem] shadow-soft border-4 border-yellow-200 p-6 relative overflow-hidden">
                         <div class="absolute top-0 right-0 text-6xl opacity-10">⭐</div>
@@ -107,7 +97,6 @@
                     </div>
                     @endif
 
-                    <!-- B. DAFTAR WARGA (LEADERBOARD) -->
                     <div class="bg-white rounded-[2rem] shadow-soft overflow-hidden border border-gray-100">
                         <div class="bg-pop-candy/30 p-6 border-b border-gray-100">
                             <h3 class="text-xl font-black text-pop-hibiscus">🏆 Papan Peringkat Warga</h3>
@@ -127,7 +116,6 @@
                                 <tbody class="divide-y divide-gray-100">
                                     @foreach($users as $index => $user)
                                     <tr class="hover:bg-gray-50 transition group">
-                                        <!-- Rank Number -->
                                         <td class="px-6 py-4 text-center">
                                             @if($index == 0) 
                                                 <span class="text-2xl">🥇</span>
@@ -140,7 +128,6 @@
                                             @endif
                                         </td>
 
-                                        <!-- User Info -->
                                         <td class="px-6 py-4">
                                             <div class="font-black text-pop-dark text-base flex items-center gap-2">
                                                 {{ $user->name }}
@@ -151,16 +138,13 @@
                                             <div class="text-xs text-gray-400">{{ $user->email }}</div>
                                         </td>
 
-                                        <!-- Contribution -->
                                         <td class="px-6 py-4 text-center">
                                             <span class="bg-pop-lime text-pop-dark font-bold px-4 py-1 rounded-full text-xs border border-black/10">
                                                 {{ $user->notes_count }} Catatan
                                             </span>
                                         </td>
 
-                                        <!-- Actions -->
                                         <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                            <!-- Tombol Favorit -->
                                             <form action="{{ route('admin.users.favorite', $user->id) }}" method="POST">
                                                 @csrf
                                                 <button class="w-8 h-8 rounded-full flex items-center justify-center transition {{ $user->is_favorite ? 'bg-yellow-400 text-white' : 'bg-gray-100 text-gray-300 hover:bg-yellow-200 hover:text-yellow-600' }}" title="{{ $user->is_favorite ? 'Hapus dari Favorit' : 'Jadikan Favorit' }}">
@@ -168,13 +152,11 @@
                                                 </button>
                                             </form>
 
-                                            <!-- Tombol Kick -->
-                                            <form action="{{ route('admin.deleteUser', $user->id) }}" method="POST" onsubmit="return confirm('KICK USER?? Data user ini akan dipindahkan ke Sampah User.')">
-                                                @csrf @method('DELETE')
-                                                <button class="bg-red-100 text-red-500 px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition h-8 flex items-center">
-                                                    ⛔ Kick
-                                                </button>
-                                            </form>
+                                            <button 
+                                                @click="showKickModal = true; kickUrl = '{{ route('admin.deleteUser', $user->id) }}'; kickUserName = '{{ $user->name }}'"
+                                                class="bg-red-100 text-red-500 px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition h-8 flex items-center gap-1">
+                                                ⛔ Kick
+                                            </button>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -186,5 +168,39 @@
 
             </div>
         </div>
+
+        <div x-show="showKickModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div x-show="showKickModal" @click="showKickModal = false" class="fixed inset-0 bg-pop-hibiscus/60 backdrop-blur-sm transition-opacity"></div>
+            
+            <div x-show="showKickModal" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 relative z-10 border-4 border-white transform transition-all">
+                
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">🚨</div>
+                    <h2 class="text-2xl font-black text-red-500 mb-2">Kick User?</h2>
+                    <p class="text-gray-500">
+                        Kamu akan menendang <span class="font-black text-pop-dark" x-text="kickUserName"></span>.
+                        <br>Berikan alasan yang jelas ya!
+                    </p>
+                </div>
+
+                <form :action="kickUrl" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-2">Alasan Kick</label>
+                        <textarea name="ban_reason" rows="3" required placeholder="Contoh: Melanggar aturan komunitas, spam, dll..." class="w-full bg-red-50 border-2 border-red-100 rounded-2xl px-4 py-3 focus:border-red-400 focus:ring-0 transition font-medium text-pop-dark placeholder-red-200"></textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" @click="showKickModal = false" class="w-1/3 bg-gray-100 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-200 transition">Batal</button>
+                        <button type="submit" class="w-2/3 bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-red-600 transition flex items-center justify-center gap-2">
+                            👋 Bye-bye
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>

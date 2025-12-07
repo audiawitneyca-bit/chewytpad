@@ -48,11 +48,26 @@ class AdminController extends Controller
     }
 
     // ... (FUNGSI KICK, RESTORE, DLL BIARKAN SAMA SEPERTI SEBELUMNYA) ...
-    public function destroyUser($id)
+    // Update fungsi Kick User agar menerima alasan
+    public function destroyUser(Request $request, $id)
     {
         if (Auth::user()->role !== 'admin') abort(403);
-        User::findOrFail($id)->delete();
-        return redirect()->back()->with('success', 'User berhasil di-kick!');
+
+        $user = User::findOrFail($id);
+
+        // Validasi input alasan
+        $request->validate([
+            'ban_reason' => 'required|string|max:255'
+        ]);
+
+        // 1. Simpan alasan kick ke database
+        $user->ban_reason = $request->ban_reason;
+        $user->save();
+
+        // 2. Lakukan Soft Delete (Kick)
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User berhasil di-kick dengan alasan: ' . $request->ban_reason);
     }
 
     public function trashUsers()
@@ -74,5 +89,22 @@ class AdminController extends Controller
         if (Auth::user()->role !== 'admin') abort(403);
         User::withTrashed()->where('id', $id)->forceDelete();
         return redirect()->back();
+    }
+
+    public function updateBanReason(Request $request, $id)
+    {
+        if (Auth::user()->role !== 'admin') abort(403);
+
+        // Cari user di tong sampah (withTrashed)
+        $user = User::withTrashed()->findOrFail($id);
+
+        $request->validate([
+            'ban_reason' => 'required|string|max:255'
+        ]);
+
+        $user->ban_reason = $request->ban_reason;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Alasan kick berhasil diperbarui!');
     }
 }

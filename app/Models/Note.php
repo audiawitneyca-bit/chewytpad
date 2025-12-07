@@ -25,4 +25,10 @@ class Note extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Tambahkan ini di dalam class Note
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest(); // Urutkan dari yang terbaru
+    }
 }

@@ -59,12 +59,19 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.deleteUser');
         
         Route::post('/users/{id}/favorite', [AdminController::class, 'toggleFavoriteUser'])->name('admin.users.favorite');
-
+        
         Route::get('/users/trash', [AdminController::class, 'trashUsers'])->name('admin.users.trash');
         Route::post('/users/{id}/restore', [AdminController::class, 'restoreUser'])->name('admin.users.restore');
         Route::delete('/users/{id}/force', [AdminController::class, 'forceDeleteUser'])->name('admin.users.force');
+        Route::put('/users/{id}/update-reason', [AdminController::class, 'updateBanReason'])->name('admin.users.updateReason');
     });
-    
+
+    // Tambahkan di dalam group middleware auth, di bawah route notes lainnya
+    Route::post('/notes/{id}/comments', [NoteController::class, 'storeComment'])->name('notes.comment');
+
+    // TAMBAHKAN DUA ROUTE INI:
+    Route::put('/comments/{id}', [NoteController::class, 'updateComment'])->name('comments.update');
+    Route::delete('/comments/{id}', [NoteController::class, 'destroyComment'])->name('comments.destroy');
 });
 
 require __DIR__.'/auth.php';
