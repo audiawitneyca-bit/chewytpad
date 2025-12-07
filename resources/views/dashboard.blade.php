@@ -20,26 +20,27 @@
                     <form action="{{ route('dashboard') }}" method="GET" class="w-full md:w-1/2 relative flex items-center">
                         
                         <!-- Input Search -->
+                        <!-- pr-28: Memberi ruang kosong di kanan untuk tombol-tombol -->
                         <input type="text" 
                                name="search" 
                                placeholder="Cari resep, tugas, atau curhatan..." 
-                               class="w-full bg-white/20 border-2 border-white/50 text-white placeholder-white/80 rounded-2xl py-4 pl-6 pr-36 focus:bg-white focus:text-pop-hibiscus focus:ring-0 focus:border-pop-lime transition-all font-bold h-16 text-lg" 
+                               class="w-full bg-white/20 border-2 border-white/50 text-white placeholder-white/80 rounded-2xl py-4 pl-6 pr-28 focus:bg-white focus:text-pop-hibiscus focus:ring-0 focus:border-pop-lime transition-all font-bold h-16 text-lg" 
                                value="{{ request('search') }}">
                         
-                        <!-- GROUP TOMBOL -->
-                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                        <!-- GROUP TOMBOL (POSISI ABSOLUTE DI KANAN TENGAH) -->
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
                             
                             <!-- TOMBOL CLEAR (X) -->
                             @if(request('search'))
                                 <a href="{{ route('dashboard') }}" 
-                                   class="bg-red-400 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold hover:bg-red-500 transition shadow-md" 
+                                   class="bg-red-400 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold hover:bg-red-500 transition shadow-md text-lg leading-none" 
                                    title="Hapus Pencarian">
                                     ✕
                                 </a>
                             @endif
 
                             <!-- TOMBOL CARI (Kaca Pembesar) -->
-                            <button type="submit" class="bg-pop-lime text-pop-hibiscus w-12 h-12 rounded-xl flex items-center justify-center font-bold hover:scale-110 transition shadow-md text-xl">
+                            <button type="submit" class="bg-pop-lime text-pop-hibiscus w-12 h-12 rounded-xl flex items-center justify-center font-bold hover:scale-110 transition shadow-md text-xl leading-none">
                                 🔍
                             </button>
                         </div>
@@ -65,6 +66,10 @@
                 <button @click="showModal = true" class="bg-pop-lime text-pop-dark font-black px-8 py-4 rounded-2xl shadow-glow hover:transform hover:-translate-y-1 transition flex items-center gap-2 text-lg hover:bg-green-300">
                     <span>➕</span> Buat Catatan Baru
                 </button>
+
+                <a href="{{ route('categories.index') }}" class="bg-white text-pop-gum font-bold px-6 py-4 rounded-2xl hover:bg-pop-candy transition border-2 border-pop-candy flex items-center gap-2 shadow-sm">
+                    ⚙️ Atur Kategori
+                </a>
 
                 <form action="{{ route('dashboard') }}" method="GET" class="flex flex-wrap gap-4">
                     <!-- FILTER KATEGORI -->
@@ -113,8 +118,7 @@
                         </form>
                     </div>
 
-                    <!-- KONTEN UTAMA (TANPA GAMBAR) -->
-                    <!-- pt-20 agar judul tidak ketimpa pita kategori -->
+                    <!-- KONTEN UTAMA (pt-20 agar judul turun aman) -->
                     <div class="pt-20 px-6 pb-4 flex-grow relative z-10">
                         <h3 class="text-2xl font-black text-pop-dark mb-2 leading-tight break-words">{{ $note->title }}</h3>
                         <p class="text-gray-500 font-medium line-clamp-4 text-sm whitespace-pre-line">{{ $note->content }}</p>
@@ -144,7 +148,7 @@
                         $submessage = 'Coba cari kata kunci lain ya.';
                         $emoji = '🔍';
                     } elseif ($isFavActive) {
-                        $message = 'Belum ada catatan yang kamu favoritin, nih! ❤️';
+                        $message = 'Belum ada catatan favorit! ❤️';
                         $submessage = 'Kasih hati di salah satu kartu catatanmu ya!';
                         $emoji = '💔';
                     } else {
@@ -167,7 +171,7 @@
             </div>
         </div>
 
-        <!-- MODAL POPUP (Form Input Dengan Upload Gambar & Caption) -->
+        <!-- MODAL POPUP (Form Input) -->
         <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div x-show="showModal" @click="showModal = false" class="fixed inset-0 bg-pop-hibiscus/30 backdrop-blur-sm transition-opacity"></div>
 
@@ -177,7 +181,6 @@
                     <button @click="showModal = false" class="w-8 h-8 bg-gray-100 rounded-full font-bold hover:bg-red-100 hover:text-red-500 transition">✕</button>
                 </div>
 
-                <!-- Form Upload -->
                 <form action="{{ route('notes.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
@@ -187,7 +190,7 @@
                             <select name="category_id" class="w-full bg-pop-candy/30 border-none rounded-xl py-3 px-4 font-bold text-pop-dark focus:ring-2 focus:ring-pop-lime">
                                 <option value="" disabled selected>Pilih...</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; // 1. Import ini
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; // 2. Tambahkan ini
 
-    // Ini biar kita nggak capek ngetik fillable satu-satu
-    // Artinya: Semua kolom boleh diisi
     protected $guarded = [];
 
     public function notes()
