@@ -258,11 +258,11 @@
                         <textarea name="content" rows="4" required placeholder="Tulis..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-medium focus:ring-2 focus:ring-pop-lime"></textarea>
                     </div>
                     <div class="mb-2">
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Upload Gambar</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Upload Gambar (OPSIONAL)</label>
                         <input type="file" name="image" accept="image/*" class="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-500 border">
                     </div>
                     <div class="mb-6">
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Keterangan</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Keterangan (OPSIONAL)</label>
                         <input type="text" name="image_caption" placeholder="Caption..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-sm text-pop-dark focus:ring-2 focus:ring-pop-lime">
                     </div>
                     <button type="submit" class="w-full bg-pop-lime text-pop-dark font-black py-4 rounded-xl shadow-lg hover:bg-green-400 transition hover:scale-[1.02]">

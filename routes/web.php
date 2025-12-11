@@ -17,13 +17,10 @@ Route::post('/reset-password-baru', [NoteController::class, 'processReset'])->na
 
 Route::middleware(['auth'])->group(function () {
 
-    // === 1. LOGIC REDIRECT CERDAS (Polisi Lalu Lintas) ===
     Route::get('/dashboard-check', function () {
-        // Jika role-nya admin, lempar ke Dashboard Admin
         if (auth()->user()->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
-        // Jika user biasa, lempar ke Dashboard User
         return redirect()->route('dashboard');
     })->name('dashboard.check');
 

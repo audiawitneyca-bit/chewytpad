@@ -10,13 +10,11 @@ class Comment extends Model
     use HasFactory;
     protected $guarded = [];
 
-    // Komen milik User siapa?
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Komen di Note mana?
     public function note()
     {
         return $this->belongsTo(Note::class);

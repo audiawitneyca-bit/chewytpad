@@ -47,24 +47,19 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Status favorit user diperbarui! 🌟');
     }
 
-    // ... (FUNGSI KICK, RESTORE, DLL BIARKAN SAMA SEPERTI SEBELUMNYA) ...
-    // Update fungsi Kick User agar menerima alasan
     public function destroyUser(Request $request, $id)
     {
         if (Auth::user()->role !== 'admin') abort(403);
 
         $user = User::findOrFail($id);
 
-        // Validasi input alasan
         $request->validate([
             'ban_reason' => 'required|string|max:255'
         ]);
 
-        // 1. Simpan alasan kick ke database
         $user->ban_reason = $request->ban_reason;
         $user->save();
 
-        // 2. Lakukan Soft Delete (Kick)
         $user->delete();
 
         return redirect()->back()->with('success', 'User berhasil di-kick dengan alasan: ' . $request->ban_reason);

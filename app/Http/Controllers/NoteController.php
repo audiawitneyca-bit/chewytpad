@@ -73,7 +73,6 @@ class NoteController extends Controller
             'image_caption' => 'nullable|string|max:255',
         ]);
 
-        // Handle Kategori Baru
         if($request->filled('new_category_name')) {
              $color = $request->category_color ?? '#FFD9F8'; 
              $category = Category::create([
@@ -109,7 +108,6 @@ class NoteController extends Controller
         return redirect()->back()->with('success', 'Catatan berhasil ditempel!');
     }
 
-    // 3. Simpan Komentar (LOGIKA TETAP BUKA MODAL)
     public function storeComment(Request $request, $id)
     {
         $request->validate(['content' => 'required|string']);
@@ -120,7 +118,6 @@ class NoteController extends Controller
             'content' => $request->content
         ]);
 
-        // Kita kirim 'open_modal' session agar di view nanti modalnya otomatis terbuka lagi
         return redirect()->back()
                 ->with('success', 'Komentar ditambahkan! 💬')
                 ->with('open_modal', $id);
@@ -240,17 +237,15 @@ class NoteController extends Controller
             'content' => $request->content
         ]);
 
-        // Kembalikan ke halaman sebelumnya dan buka modal note terkait
         return redirect()->back()
             ->with('success', 'Komentar berhasil diedit!')
             ->with('open_modal', $comment->note_id);
     }
 
-    // Hapus Komentar
     public function destroyComment($id)
     {
         $comment = Comment::where('user_id', Auth::id())->findOrFail($id);
-        $noteId = $comment->note_id; // Simpan ID note sebelum dihapus untuk redirect
+        $noteId = $comment->note_id; 
         
         $comment->delete();
 
