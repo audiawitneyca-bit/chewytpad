@@ -32,7 +32,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // --- REVISI DI SINI ---
+        // Arahkan ke route 'dashboard.check' untuk dipilah (Admin ke Admin, User ke User)
+        return redirect()->route('dashboard.check');
     }
 
     /**

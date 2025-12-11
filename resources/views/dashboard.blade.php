@@ -59,10 +59,19 @@
                             <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
                     </select>
+
+                    @php
+                        $isFav = request('filter_favorite') == 'true';
+                    @endphp
+                    <button type="submit" name="filter_favorite" value="{{ $isFav ? 'false' : 'true' }}" 
+                        class="px-6 py-4 rounded-2xl shadow-sm border-2 font-bold transition flex items-center gap-2
+                        {{ $isFav ? 'bg-pop-hibiscus text-white border-pop-dark' : 'bg-white text-pop-gum border-pop-gum hover:bg-pop-gum hover:text-white' }}">
+                        {{ $isFav ? '❤️ Favorit Aktif' : '🤍 Lihat Favorit' }}
+                    </button>
                 </form>
 
                 <a href="{{ route('trash') }}" class="bg-white text-pop-gum font-bold px-8 py-4 rounded-2xl hover:bg-pop-gum hover:text-white transition border-2 border-pop-gum flex items-center gap-2 shadow-sm">
-                    🗑️ Sampah
+                    🗑️ Sampah Catatan
                 </a>
             </div>
 
@@ -85,7 +94,7 @@
                             </form>
                         </div>
 
-                        <div class="pt-20 px-6 pb-4 flex-grow relative z-10 cursor-pointer" @click="showCommentModal = true">
+                        <a href="{{ route('notes.show', $note->id) }}" class="pt-20 px-6 pb-4 flex-grow relative z-10 cursor-pointer block">
                             @if($note->image)
                                 <div class="mb-3 overflow-hidden rounded-2xl border-2 border-gray-100">
                                     <div class="w-full aspect-video bg-gray-50">
@@ -98,7 +107,8 @@
                             @endif
                             <h3 class="text-2xl font-black text-pop-dark mb-2 leading-tight break-words">{{ $note->title }}</h3>
                             <p class="text-gray-500 font-medium line-clamp-3 text-sm whitespace-pre-line">{{ $note->content }}</p>
-                        </div>
+                            <span class="text-xs text-blue-400 font-bold hover:underline mt-2 inline-block">Baca Selengkapnya ↗</span>
+                        </a>
 
                         <div class="flex justify-between items-center px-6 pb-6 pt-4 border-t border-dashed border-gray-100 mt-auto relative z-10">
                             <div class="flex items-center gap-2">
@@ -122,112 +132,87 @@
                     <div x-show="showCommentModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center px-4 py-4">
                         <div class="fixed inset-0 bg-pop-hibiscus/60 backdrop-blur-sm transition-opacity" @click="showCommentModal = false"></div>
                         
-                        <div class="bg-white w-full max-w-lg h-[90vh] rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden flex flex-col border-4 border-white transform transition-all">
+                        <div class="bg-gray-50 w-full max-w-lg h-[80vh] rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden flex flex-col border-4 border-white transform transition-all">
                             
-                            <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50 flex-none">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-3">
-                                        <span class="inline-block px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-pop-dark border-2 border-white shadow-sm break-words whitespace-normal min-w-[80px] text-center" style="background-color: {{ $note->category->color }}">
-                                            {{ $note->category->name }}
-                                        </span>
-                                        <h2 class="text-xl font-black text-pop-dark leading-tight break-words flex-1">{{ $note->title }}</h2>
-                                    </div>
-                                    <button @click="showCommentModal = false" class="w-8 h-8 bg-gray-100 hover:bg-red-100 hover:text-red-500 rounded-full font-bold transition flex items-center justify-center text-sm flex-shrink-0 ml-2">✕</button>
+                            <div class="p-5 border-b border-gray-200 bg-white shadow-sm flex justify-between items-center flex-none z-20">
+                                <div>
+                                    <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-pop-dark border border-black/5 mb-1 inline-block" style="background-color: {{ $note->category->color }}">
+                                        {{ $note->category->name }}
+                                    </span>
+                                    <h2 class="text-lg font-black text-pop-dark truncate max-w-[250px] leading-tight">{{ $note->title }}</h2>
                                 </div>
+                                <button @click="showCommentModal = false" class="w-8 h-8 bg-gray-100 rounded-full font-bold hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-sm">✕</button>
                             </div>
 
-                            <div class="flex-grow p-6 overflow-y-auto space-y-4 custom-scrollbar bg-gradient-to-b from-white to-gray-50/30">
-                                <div class="text-center mb-6">
-                                    <span class="bg-white border border-gray-200 text-gray-400 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow-sm">
-                                        💬 KOMENTAR ({{ $note->comments->count() }})
+                            <div class="flex-grow p-5 overflow-y-auto space-y-4 custom-scrollbar bg-white">
+                                
+                                <div class="text-center mb-4">
+                                    <span class="bg-white border border-gray-200 text-gray-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Komentar
                                     </span>
                                 </div>
 
-                                <div class="space-y-4">
-                                    @forelse($note->comments as $comment)
-                                        <div x-data="{ isEditing: false, editContent: '{{ addslashes($comment->content) }}' }" 
-                                             class="flex flex-col {{ $comment->user_id == Auth::id() ? 'items-end' : 'items-start' }}">
-                                            
-                                            <div class="flex items-center gap-2 mb-1 {{ $comment->user_id == Auth::id() ? 'flex-row-reverse' : '' }}">
-                                                <div class="w-7 h-7 rounded-full bg-gradient-to-br {{ $comment->user_id == Auth::id() ? 'from-pop-lime to-green-400' : 'from-blue-100 to-blue-200' }} flex items-center justify-center text-xs font-black text-pop-dark flex-shrink-0">
-                                                    {{ substr($comment->user->name, 0, 1) }}
-                                                </div>
-                                                <div class="flex items-center gap-2 {{ $comment->user_id == Auth::id() ? 'flex-row-reverse' : '' }}">
-                                                    <span class="font-bold text-sm text-pop-dark">{{ $comment->user->name }}</span>
-                                                    <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
-                                                </div>
-                                                
-                                                @if($comment->user_id == Auth::id())
-                                                    <div class="flex gap-2 opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100" x-show="!isEditing">
-                                                        <button @click="isEditing = true" 
-                                                                class="text-xs text-blue-500 hover:text-blue-700 transition-colors p-1 hover:bg-blue-50 rounded">
-                                                            ✏️ Edit
-                                                        </button>
-                                                        <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Hapus komentar ini?')">
-                                                            @csrf @method('DELETE')
-                                                            <button type="submit" class="text-xs text-red-500 hover:text-red-700 transition-colors p-1 hover:bg-red-50 rounded">
-                                                                ✕ Hapus
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            
-                                            <div x-show="!isEditing" class="px-4 py-3 rounded-2xl text-sm w-full max-w-[90%] shadow-sm border leading-relaxed break-words
-                                                {{ $comment->user_id == Auth::id() 
-                                                    ? 'bg-gradient-to-r from-pop-lime to-green-300 text-pop-dark rounded-tr-none border-green-300' 
-                                                    : 'bg-gradient-to-r from-gray-50 to-blue-50 text-gray-700 rounded-tl-none border-gray-200' }}">
-                                                {{ $comment->content }}
-                                            </div>
+                                @forelse($note->comments as $comment)
+                                    <div x-data="{ isEditing: false, editContent: '{{ $comment->content }}' }" class="flex flex-col {{ $comment->user_id == Auth::id() ? 'items-end' : 'items-start' }}">
+                                        
+                                        <div class="flex items-center gap-2 mb-1 px-1 {{ $comment->user_id == Auth::id() ? 'flex-row-reverse' : '' }}">
+                                            <span class="font-bold text-xs text-pop-dark">{{ $comment->user->name }}</span>
+                                            <span class="text-[9px] text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
                                             
                                             @if($comment->user_id == Auth::id())
-                                                <div x-show="isEditing" class="px-4 py-3 rounded-2xl text-sm w-full max-w-[90%] shadow-sm border leading-relaxed break-words bg-white border-blue-300">
-                                                    <form action="{{ route('comments.update', $comment->id) }}" method="POST" class="space-y-3">
-                                                        @csrf @method('PUT')
-                                                        <textarea x-model="editContent" name="content" rows="2" 
-                                                                  class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-0 focus:border-blue-400 resize-none" 
-                                                                  style="min-height: 60px;"></textarea>
-                                                        <div class="flex gap-2 justify-end mt-2">
-                                                            <button type="button" @click="isEditing = false; editContent = '{{ addslashes($comment->content) }}'" 
-                                                                    class="text-xs text-gray-500 hover:text-gray-700 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition font-medium">
-                                                                Batal
-                                                            </button>
-                                                            <button type="submit" 
-                                                                    class="text-xs bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition font-bold">
-                                                                Update Komentar
-                                                            </button>
-                                                        </div>
+                                                <div class="flex gap-1 opacity-0 hover:opacity-100 transition duration-200 group-hover:opacity-100" x-show="!isEditing">
+                                                    <span class="text-[9px] text-gray-300">|</span>
+                                                    <button @click="isEditing = true" class="text-[9px] text-blue-400 hover:underline">Edit</button>
+                                                    <span class="text-[9px] text-gray-300">.</span>
+                                                    <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Hapus komentar?')">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="text-[9px] text-red-400 hover:underline">Hapus</button>
                                                     </form>
                                                 </div>
                                             @endif
                                         </div>
-                                    @empty
-                                        <div class="h-full flex flex-col items-center justify-center text-center opacity-40 py-16">
-                                            <div class="text-5xl mb-4">💭</div>
-                                            <p class="text-base font-bold text-gray-500 mb-1">Belum ada komentar</p>
-                                            <p class="text-xs text-gray-400">Jadilah yang pertama menulis komentar!</p>
+
+                                        <div x-show="!isEditing" class="px-4 py-3 rounded-2xl text-sm max-w-[90%] shadow-sm border 
+                                            {{ $comment->user_id == Auth::id() 
+                                                ? 'bg-pop-lime text-pop-dark rounded-tr-none border-pop-lime' 
+                                                : 'bg-gray-50 text-gray-600 rounded-tl-none border-gray-200' }}">
+                                            {{ $comment->content }}
                                         </div>
-                                    @endforelse
-                                </div>
+
+                                        @if($comment->user_id == Auth::id())
+                                            <div x-show="isEditing" class="w-[90%] max-w-[300px]">
+                                                <form action="{{ route('comments.update', $comment->id) }}" method="POST" class="flex flex-col gap-2 bg-white p-2 rounded-xl border border-blue-200 shadow-sm">
+                                                    @csrf @method('PUT')
+                                                    <textarea name="content" x-model="editContent" rows="2" class="w-full text-sm border-gray-200 rounded-lg bg-gray-50 p-2 resize-none" required></textarea>
+                                                    <div class="flex justify-end gap-2">
+                                                        <button type="button" @click="isEditing = false; editContent = '{{ $comment->content }}'" class="text-[10px] text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded">Batal</button>
+                                                        <button type="submit" class="bg-blue-500 text-white text-[10px] px-3 py-1 rounded font-bold hover:bg-blue-600">Simpan</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="h-full flex flex-col items-center justify-center text-center opacity-40 mt-10">
+                                        <div class="text-5xl mb-2">💬</div>
+                                        <p class="text-sm font-bold text-gray-500">Belum ada komentar.</p>
+                                        <p class="text-xs text-gray-400">Jadilah yang pertama!</p>
+                                    </div>
+                                @endforelse
                             </div>
 
-                            <div class="p-5 bg-white border-t border-gray-100 shadow-inner flex-none">
-                                <div class="px-4 pb-4">
-                                    <form action="{{ route('notes.comment', $note->id) }}" method="POST" class="flex gap-2 w-full">
-                                        @csrf
-                                        <input type="text" name="content" required placeholder="Tulis komentar..." 
-                                               class="flex-grow bg-gray-50 border-2 border-gray-200 focus:border-pop-gum focus:ring-0 rounded-xl px-4 py-2.5 shadow-sm text-xs transition placeholder-gray-400 font-medium mr-2">
-                                        <button type="submit" 
-                                                class="bg-pop-hibiscus text-white font-bold px-4 py-2.5 rounded-xl hover:bg-pop-gum transition shadow-md flex items-center justify-center gap-1 flex-shrink-0 whitespace-nowrap text-xs">
-                                            Kirim
-                                        </button>
-                                    </form>
-                                </div>
+                            <div class="p-4 bg-white border-t border-gray-200 flex-none z-20">
+                                <form action="{{ route('notes.comment', $note->id) }}" method="POST" class="flex gap-2 relative">
+                                    @csrf
+                                    <input type="text" name="content" required placeholder="Tulis komentar..." class="flex-grow bg-white border-2 border-transparent focus:bg-gray-50 focus:border-pop-gum focus:ring-0 rounded-2xl px-4 py-3 shadow-inner text-sm transition placeholder-gray-400">
+                                    <button type="submit" class="bg-pop-dark text-white font-bold px-4 rounded-2xl hover:bg-gray-800 transition shadow-md flex items-center justify-center transform active:scale-95">
+                                        ➤
+                                    </button>
+                                </form>
                             </div>
 
                         </div>
                     </div>
-
                 </div>
                 @empty
                 <div class="col-span-3 flex flex-col items-center justify-center py-20 text-center">
@@ -241,7 +226,7 @@
 
         <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div x-show="showModal" @click="showModal = false" class="fixed inset-0 bg-pop-hibiscus/30 backdrop-blur-sm transition-opacity"></div>
-            <div x-show="showModal" class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-8 relative z-10 transform transition-all border-4 border-white max-h-[90vh] overflow-y-auto">
+            <div x-show="showModal" class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-8 relative z-10 transform transition-all border-4 border-white max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-pop-hibiscus">Tulis Ide Baru 🍬</h2>
                     <button @click="showModal = false" class="w-8 h-8 bg-gray-100 rounded-full font-bold hover:bg-red-100 hover:text-red-500 transition">✕</button>
@@ -252,7 +237,7 @@
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="text-xs font-bold text-gray-400 uppercase ml-2">Kategori</label>
-                            <select name="category_id" class="w-full bg-pop-candy/30 border-none rounded-xl py-3 px-4 font-bold text-pop-dark focus:ring-2 focus:ring-pop-lime">
+                            <select name="category_id" class="w-full bg-pop-candy/30 border-none rounded-xl py-3 px-4 font-bold text-pop-dark focus:ring-2 focus:ring-pop-lime cursor-pointer">
                                 <option value="" disabled selected>Pilih...</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -264,27 +249,22 @@
                             <input type="text" name="new_category_name" placeholder="Cth: Skincare" class="w-full bg-pop-candy/30 border-none rounded-xl py-3 px-4 font-bold focus:ring-2 focus:ring-pop-lime">
                         </div>
                     </div>
-
                     <div class="mb-4">
                         <label class="text-xs font-bold text-gray-400 uppercase ml-2">Judul</label>
-                        <input type="text" name="title" required placeholder="Judul yang aesthetic..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-black text-lg focus:ring-2 focus:ring-pop-lime">
+                        <input type="text" name="title" required placeholder="Judul..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-black text-lg focus:ring-2 focus:ring-pop-lime">
                     </div>
-
                     <div class="mb-6">
                         <label class="text-xs font-bold text-gray-400 uppercase ml-2">Isi Catatan</label>
-                        <textarea name="content" rows="4" required placeholder="Tulis detailnya di sini bestie..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-medium focus:ring-2 focus:ring-pop-lime"></textarea>
+                        <textarea name="content" rows="4" required placeholder="Tulis..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-medium focus:ring-2 focus:ring-pop-lime"></textarea>
                     </div>
-
                     <div class="mb-2">
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Upload Gambar (Opsional)</label>
-                        <input type="file" name="image" accept="image/*" class="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-pop-lime file:text-pop-dark hover:file:bg-green-400 cursor-pointer">
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Upload Gambar</label>
+                        <input type="file" name="image" accept="image/*" class="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-500 border">
                     </div>
-
                     <div class="mb-6">
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Keterangan Gambar (Opsional)</label>
-                        <input type="text" name="image_caption" placeholder="Contoh: Foto bahan-bahan kue..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-sm text-pop-dark focus:ring-2 focus:ring-pop-lime">
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-2">Keterangan</label>
+                        <input type="text" name="image_caption" placeholder="Caption..." class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-sm text-pop-dark focus:ring-2 focus:ring-pop-lime">
                     </div>
-
                     <button type="submit" class="w-full bg-pop-lime text-pop-dark font-black py-4 rounded-xl shadow-lg hover:bg-green-400 transition hover:scale-[1.02]">
                         SIMPAN CATATAN ✨
                     </button>

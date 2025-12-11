@@ -218,6 +218,15 @@ class NoteController extends Controller
         return redirect()->route('login');
     }
 
+    public function show($id)
+    {
+        $user_id = Auth::id();
+        // Pastikan hanya pemilik yang bisa lihat (atau sesuaikan jika ingin publik)
+        $note = Note::where('user_id', $user_id)->with(['category', 'comments.user'])->findOrFail($id);
+        
+        return view('show', compact('note'));
+    }
+
     // Update Komentar
     public function updateComment(Request $request, $id)
     {
